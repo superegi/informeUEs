@@ -1,0 +1,5 @@
+#!/bin/bash
+echo 'Hola que tal'
+jupyter nbconvert --to notebook --execute Descriptor de SSVQ.ipynb
+jupyter nbconvert --to notebook --execute Precompilador de texto.ipynb
+sleep5
