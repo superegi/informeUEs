@@ -309,6 +309,11 @@ for hosp in BD_infohosp.index:
     #guardo el objeto (lo apendo a el archivo)
     print(imagen_lista, '\n', file=open(str(exportar), 'a'))
 
+
+
+
+
+
 #############################################################
 #############################################################
 #############################################################
@@ -353,5 +358,63 @@ for hosp in BD_infohosp.index:
 
     #guardo el objeto (lo apendo a el archivo)
     print(tabla_lista, '\n', file=open(str(exportar), 'a'))
+
+    #############################################################
+    #############################################################
+    #############################################################
+    #############################################################
+    ##   texto ######
+
+
+
+    # acá calculo el tiempo en que se demora en atender a cierta
+    # proporción de pacientes
+
+    docs = dum_segs
+    total ={}
+    for x in ['Triage 1', 'Triage 2', 'Triage 3', 'Triage 4', 'Triage 5']:
+        doc = docs.loc[docs.Triage == x]
+        DT_EsperaMD = {}
+        for n in range(1,200,1):
+            DT_EsperaMD[str(n)] = (doc.DT_EsperaMD>n).value_counts(normalize=True)[0]*100
+        print(x)
+        total[x] = DT_EsperaMD
+
+    #total
+    cumlimiento = pd.DataFrame.from_dict(total)
+    #cumlimiento
+    dum = cumlimiento.reset_index()#.set_index('index')
+    dum['index'] = dum['index'].astype(str).astype(int)
+    dum = dum.set_index('index')
+    umbral = 80 # porciento de los pacientes
+
+
+    dum.sort_index().iloc[(dum.sort_index()['Triage 1']-umbral).abs().argsort()].index[0]
+    dum.sort_index().iloc[(dum.sort_index()['Triage 2']-umbral).abs().argsort()].index[0]
+    dum.sort_index().iloc[(dum.sort_index()['Triage 3']-umbral).abs().argsort()].index[0]
+    dum.sort_index().iloc[(dum.sort_index()['Triage 4']-umbral).abs().argsort()].index[0]
+    dum.sort_index().iloc[(dum.sort_index()['Triage 5']-umbral).abs().argsort()].index[0]
+
+    a_redondear     =   3 #números a redondear
+    umbral          =   80
+
+    texto           = 'Se determinó un umbral para definir que proporcion de pacientes fueron \
+    atendidos antes de ese evalor. El umbral fue de {} %. Se buscó el valor en minutos en que \
+    esa proporción de pacientes ya había sido atendida. El valor  \
+    para Triage 1 fue de {} minutos, \
+    para Triage 2 fue de {} minutos, \
+    para Triage 3 fue de {} minutos, \
+    para Triage 4 fue de {} minutos, \
+    para Triage 5 fue de {} minutos.'.format(
+        str(umbral),
+        dum.sort_index().iloc[(dum.sort_index()['Triage 1']-umbral).abs().argsort()].index[0],
+        dum.sort_index().iloc[(dum.sort_index()['Triage 2']-umbral).abs().argsort()].index[0], 
+        dum.sort_index().iloc[(dum.sort_index()['Triage 3']-umbral).abs().argsort()].index[0], 
+        dum.sort_index().iloc[(dum.sort_index()['Triage 4']-umbral).abs().argsort()].index[0], 
+        dum.sort_index().iloc[(dum.sort_index()['Triage 5']-umbral).abs().argsort()].index[0]
+            )
+
+    #guardo el objeto (lo apendo a el archivo)
+    print(texto, '\n', file=open(str(exportar), 'a'))
 
 
